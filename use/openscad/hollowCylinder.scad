@@ -27,7 +27,7 @@ module hollowCylinder(d=5, h=10, wallWidth=1, $fn=128)
 {
 	difference()
 	{
-		cylinder(d=d, h=h);
-		translate([0, 0, -0.1]) { cylinder(d=d-(wallWidth*2), h=h+0.2); }
+		cylinder(d=d, h=h, center=true);
+		translate([0, 0, -0.1]) { cylinder(d=d-(wallWidth*2), h=h+0.2, center=true); }
 	}
 }

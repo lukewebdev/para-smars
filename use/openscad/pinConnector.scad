@@ -28,6 +28,8 @@ pinConnector(female=true);
 pinConnector();
 */
 
+//pinConnector(female=true);
+
 function pinConnectorLength() = 40;
 function pinConnectorWidth() = 24;
 function pinConnectorDepth() = 14;
