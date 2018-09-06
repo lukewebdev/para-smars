@@ -31,10 +31,10 @@ wheel_diameter = 31;
 //CHASSIS CONF
 rear_wheel_buffer = 11;
 wall_width = 3.6;
-radius = 10;//not more than ten or need to adjust stepper mount hub code
+radius = 35;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  battery_w+44; // 40 is two stepper motors
-chassis_h = battery_h + radius*2;
-chassis_l = battery_l +radius*2;
+chassis_h = battery_h + radius;
+chassis_l = battery_l + radius*2+10;
 echo(chassis_l);
 echo(chassis_w);
 echo(chassis_h);
@@ -43,18 +43,19 @@ difference(){
     union(){
         chassis();
         SL_axles();
-        stepper_mount_plate();
+        //stepper_mount_plate();
        //battery_case();
     }    
     steppers();
     stepper_holes();
-    battery_case();
+//    battery_case();
 }
 //stepper_holes();
 //show steppers? (don't print)
 steppers();
 battery_case();
-
+arduino();
+chassis_top();
 
 
 module chassis_exterior_subtract(){
@@ -71,11 +72,33 @@ module chassis_interior_subtract(){
 }
 
 module chassis_top_subtract(){
-        //cut off top
     render()
-        translate([0,0,chassis_h/2])
-        cube([chassis_l+wall_width/2,chassis_w+wall_width/2+5,radius], center=true);     
+    translate([0,0,chassis_h/2])
+    cube([chassis_l*2,chassis_w+wall_width*2,12], center=true);
 }
+
+
+
+module chassis_top(){//derive top lid
+    color("blue")
+    translate([0,0,5])
+    difference(){
+        chassis_exterior_subtract();
+        chassis_interior_subtract();
+        difference(){
+            cube([chassis_l+2,chassis_w+2,chassis_h+1], center=true);
+            translate([0,0,chassis_h/2])
+            cube([chassis_l*2,chassis_w+wall_width*2,20], center=true);
+        }
+    }
+    
+}
+
+
+
+
+
+
 module chassis(){
     //main box
     //render()
@@ -88,7 +111,16 @@ module chassis(){
     }
 }
 
+module chassis_lid(){
 
+    difference(){
+        chassis_exterior_subtract();
+        chassis_interior_subtract();
+        chassis_top_subtract();
+        
+  
+    }
+}
 
 module SL_axles(){
     difference(){
@@ -98,7 +130,19 @@ module SL_axles(){
                 mirror([0,1,0])
                 SL_axle(); 
                 hub();
-        }
+            }   
+        chassis_exterior_subtract();
+    }
+
+    mirror([1,0,0])
+    difference(){
+            union(){
+
+                SL_axle(); 
+                mirror([0,1,0])
+                SL_axle(); 
+                hub();
+            }   
         chassis_exterior_subtract();
     }
 
@@ -152,9 +196,9 @@ module stepper_mount_plate(){
 
     difference(){
        union(){
-            translate([0,0,-chassis_h/2 + mount_plate_diameter/2])//put at bottom
+
            
-            translate([chassis_l/2 - (mount_plate_diameter/2)-rear_wheel_buffer ,0,0])
+    translate([0 ,-1,chassis_h/2-28/2])
             rotate([90,90,0])
            color("red")
             cylinder(h=chassis_w, d= mount_plate_diameter, center = true, $fn=0);
@@ -171,12 +215,12 @@ module stepper_mount_plate(){
 module stepper(){
     //same translate as stepper_mount_plate
     //put at bottom
-    translate([0,-0,-chassis_h/2+axle_d/2 + 28/2 -5.5 ])
-    translate([chassis_l/2 - (mount_plate_diameter/2)-rear_wheel_buffer ,-1,0])
+//    translate([0,-0,-chassis_h/2+axle_d/2 + 28/2 -5.5 ])
+    translate([0 ,-1,chassis_h/2-28/2])
     
     //now scoot it to the side
     translate([0,chassis_w/2-10,0])
-    rotate([90,90,0])
+    rotate([90,-90,0])
     render()
     StepMotor28BYJ();
 }
@@ -193,24 +237,21 @@ module steppers(){
 
 module stepper_holes(){ 
         w = chassis_w+3.6;
-    //put at bottom
-        translate([0,0,-chassis_h/2+axle_d/2 + 28/2 - 5.5])//28/2 is stepper height
-        color("green")
-        translate([chassis_l/2 - (mount_plate_diameter/2)-rear_wheel_buffer ,-1,-14.85])
-    
-    //now scoot it to the side
 
-        rotate([0,0,90])
+        color("green")
+
+        translate([0,0,29.3])
+        rotate([0,180,90])
         union(){
             
             //mount hole
             translate([0, -17.5, 15])    
             rotate([0,90,0])
-            cylinder(h=w, d = 4.5, center=true, $fn=0);
+            cylinder(h=w-4, d = 4.5, center=true, $fn=0);
             //mount hole
             translate([0, 17.5, 15])    
             rotate([0,90,0])
-            cylinder(h=w, d = 4.5, center=true, $fn=0);    
+            cylinder(h=w-4, d = 4.5, center=true, $fn=0);    
             //shaft hole
             translate([0, 0, 7])    
             rotate([0,90,0])
@@ -266,3 +307,11 @@ module visual_wheel_align(){
     cube([chassis_l, chassis_w+30,1], center = true);
 }
 //visual_wheel_align();
+
+
+module arduino(){
+
+    rotate([0,0,-90])
+    translate([35,40,30])    
+    import("import/Arduino.stl");
+}
