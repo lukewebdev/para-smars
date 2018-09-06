@@ -1,6 +1,6 @@
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
-$fa=1;
-$fs=1.5;
+//$fa=1;
+//$fs=1.5;
 
 //END DEVEL ONLY
 
@@ -8,6 +8,9 @@ use <use/openscad/hollowCylinder.scad>
 use <use/openscad/torus.scad>
 use <use/openscad/roundedCube.scad>
 use <use/StepMotor_28BYJ-48.scad>
+use <use/openscad/pinConnector.scad>
+use <use/openscad/shapes.scad>
+
 //STEPPER CONF
 mount_plate_diameter = 30;
 stepper_diameter = 28;
@@ -35,6 +38,7 @@ radius = 50;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  battery_w+44; // 40 is two stepper motors
 chassis_h = battery_h + radius;
 chassis_l = battery_l + radius*2+10;
+roof_offset = 40; // just how high to show roof separate from chassis
 echo(chassis_l);
 echo(chassis_w);
 echo(chassis_h);
@@ -52,20 +56,22 @@ difference(){
 }
 //stepper_holes();
 //show steppers? (don't print)
-steppers();
-battery_case();
-arduino();
+//steppers();
+//battery_case();
+//arduino();
 chassis_top();
 
 
 module chassis_exterior_subtract(){
       render()
+    color("gray")
         roundedCube([chassis_l,chassis_w,chassis_h], xcorners=[true,false,false,true], zcorners=[true,false,false,true], r=radius, x=true, y=true, z=true, center=true, $fn=30);
 }
 
 
 module chassis_interior_subtract(){
         render()
+        color("gray")
         ///main cavity
        roundedCube([chassis_l-wall_width,chassis_w-wall_width,chassis_h-wall_width], xcorners=[true,false,false,true], zcorners=[true,false,false,true], r=radius, x=true, y=true, z=true, center=true, $fn=30);
 
@@ -79,47 +85,96 @@ module chassis_top_subtract(){
 
 module chassis_top(){//derive top lid
 //    scale([1,1.05,1])
-    color("blue")
-    translate([0,0,2])
-    difference(){
-        chassis_exterior_subtract();
-        chassis_interior_subtract();
+
+    translate([0,0,roof_offset])
+    union(){
         difference(){
-            cube([chassis_l+2,chassis_w+2,chassis_h+1], center=true);
-            translate([0,0,chassis_h/2])
-            cube([chassis_l*2,chassis_w+wall_width*2,9], center=true);
+            chassis_exterior_subtract();
+            chassis_interior_subtract();
+            difference(){
+                cube([chassis_l+2,chassis_w+2,chassis_h+1], center=true);
+                translate([0,0,chassis_h/2])
+                cube([chassis_l*2,chassis_w+wall_width*2,6], center=true);
+            }
         }
+        //pin connectors
+        pins_roof_male();
     }
-    
 }
-
-
-
-
-
 
 module chassis(){
     //main box
     //render()
+    color("gray")
     difference(){
         chassis_exterior_subtract();
         chassis_interior_subtract();
         chassis_top_subtract();
-        
-  
+    }
+    
+   pins_roof_female();    
+}
+
+
+module pin_roof_male(){
+    color("red")
+    translate([35,41,34.5])        
+    rotate([180,0,0])
+    pinConnector(length = 20, width = 12, depth = 8);
+}
+
+module pins_roof_male(){
+    pin_roof_male();
+    mirror([1,0,0])
+    pin_roof_male();
+    mirror([0,1,0])
+    pin_roof_male();    
+    mirror([0,1,0])
+    mirror([1,0,0])
+    pin_roof_male();        
+}
+
+module pin_roof_female(){
+
+    translate([35,33,11.65])        
+    rotate([0,0,0])
+    union(){    
+        pinConnector(length = 20, width = 12, depth = 8, female=true);     
+        quarterround();
     }
 }
 
-module chassis_lid(){
-
+module quarterround(){
+    qd = 16;
+    translate([6,8,0])
+     rotate([90,0,90])
     difference(){
-        chassis_exterior_subtract();
-        chassis_interior_subtract();
-        chassis_top_subtract();
-        
-  
+        cylinder(h=12, d=qd, center = true);
+        translate([0,0,-qd/2])
+        cube([qd, qd, qd], center = false);
+        translate([-qd/2,0,-qd/2])
+        cube([qd, qd, qd], center = false);        
+        translate([0,-qd/2,-qd/2])
+        cube([qd, qd, qd], center = false);                
     }
 }
+
+//quarterround();
+
+module pins_roof_female(){
+    pin_roof_female();
+    mirror([1,0,0])
+    pin_roof_female();
+    mirror([0,1,0])
+    pin_roof_female();    
+    mirror([0,1,0])
+    mirror([1,0,0])
+    pin_roof_female();        
+}
+
+
+
+
 
 module SL_axles(){
     difference(){
@@ -150,7 +205,7 @@ module SL_axles(){
 
 module SL_axle(){
         //put at bottom
-        translate([0,0,-chassis_h/2+axle_d/2])
+        translate([0,0,-chassis_h/2+axle_d/2 + .55])
         rotate([-90,0,0])
         translate([-chassis_l/2+radius,0,chassis_w/2-3 + axle_h/2])
         difference(){
@@ -179,7 +234,7 @@ module SL_axle(){
 module hub(){
     //render(){
         //put at bottom
-        translate([0,0,-chassis_h/2 + axle_d/2])
+        translate([0,0,-chassis_h/2 + axle_d/2+.55])
         color("red")
         translate([-chassis_l/2+radius,0,0])
 
@@ -215,7 +270,7 @@ module stepper(){
     //same translate as stepper_mount_plate
     //put at bottom
 //    translate([0,-0,-chassis_h/2+axle_d/2 + 28/2 -5.5 ])
-    translate([-15 ,-1,chassis_h/2-28/2 - 3.2])
+    translate([-12 ,-1,chassis_h/2-28/2 - 3.2])
     
     //now scoot it to the side
     translate([0,chassis_w/2-10,0])
@@ -237,9 +292,9 @@ module steppers(){
 module stepper_holes(){ 
         w = chassis_w+3.6;
 
-        color("green")
+        color("gray")
 
-        translate([-15,0,33.5])
+        translate([-12,0,33.5])
         rotate([0,180,90])
         union(){
             
