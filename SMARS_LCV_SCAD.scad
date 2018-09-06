@@ -31,7 +31,7 @@ wheel_diameter = 31;
 //CHASSIS CONF
 rear_wheel_buffer = 11;
 wall_width = 3.6;
-radius = 35;//not more than ten or need to adjust stepper mount hub code
+radius = 50;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  battery_w+44; // 40 is two stepper motors
 chassis_h = battery_h + radius;
 chassis_l = battery_l + radius*2+10;
@@ -74,21 +74,20 @@ module chassis_interior_subtract(){
 module chassis_top_subtract(){
     render()
     translate([0,0,chassis_h/2])
-    cube([chassis_l*2,chassis_w+wall_width*2,12], center=true);
+    cube([chassis_l*2,chassis_w+wall_width*2,6], center=true);
 }
 
-
-
 module chassis_top(){//derive top lid
+//    scale([1,1.05,1])
     color("blue")
-    translate([0,0,5])
+    translate([0,0,2])
     difference(){
         chassis_exterior_subtract();
         chassis_interior_subtract();
         difference(){
             cube([chassis_l+2,chassis_w+2,chassis_h+1], center=true);
             translate([0,0,chassis_h/2])
-            cube([chassis_l*2,chassis_w+wall_width*2,20], center=true);
+            cube([chassis_l*2,chassis_w+wall_width*2,9], center=true);
         }
     }
     
@@ -216,7 +215,7 @@ module stepper(){
     //same translate as stepper_mount_plate
     //put at bottom
 //    translate([0,-0,-chassis_h/2+axle_d/2 + 28/2 -5.5 ])
-    translate([0 ,-1,chassis_h/2-28/2])
+    translate([-15 ,-1,chassis_h/2-28/2 - 3.2])
     
     //now scoot it to the side
     translate([0,chassis_w/2-10,0])
@@ -240,7 +239,7 @@ module stepper_holes(){
 
         color("green")
 
-        translate([0,0,29.3])
+        translate([-15,0,33.5])
         rotate([0,180,90])
         union(){
             
@@ -295,7 +294,7 @@ module battery_case(){
     //"89mm (+1.5mm for switch knob) x 42mm x 21.7mm"
     color("black")
     //put at bottom
-    translate([-5,0,-chassis_h/2+axle_d])
+    translate([-5,0,-chassis_h/2+axle_d+5])
     rotate([0,90,90])
     cube([battery_h,battery_l,battery_w], center = true);
 }
