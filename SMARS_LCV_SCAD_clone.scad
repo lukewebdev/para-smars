@@ -55,7 +55,7 @@ chassis_render();
 module chassis_render(){
     difference(){
        chassis();
-        diffs();
+       diffs();
     }
     chassis_interior();
     
@@ -144,7 +144,6 @@ module diffs(){
     
     //arduino top slant printable groove
     arduino_printable_top_slants();
- 
     arduino_groove_stoppers();
 
 
@@ -152,7 +151,7 @@ module diffs(){
     //top stackable module groove
     translate([0,0,chassis_h-radius-arduino_pcb_thickness])
     cube([arduino_length,arduino_width,arduino_pcb_thickness],center=true);    
-    
+    stackable_printable_top_slants();
     stackable_groove_stoppers();    
 
 }
@@ -161,9 +160,9 @@ module diffs(){
 
 module arduino_printable_top_slant(){
     //arduino groove printable top slant
-    translate([0,-chassis_w/2+wall_width+arduino_pcb_thickness/2-1,chassis_h-radius-arduino_pcb_thickness-14])
+    translate([0,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.9,chassis_h-radius-arduino_pcb_thickness-13.89])
     rotate([90,45,90])
-    cylinder(d = arduino_pcb_thickness, h = arduino_length, center=true, $fn=3);
+    cylinder(d = arduino_pcb_thickness+.5, h = arduino_length, center=true, $fn=3);
 }
 
 module arduino_printable_top_slants(){
@@ -172,11 +171,28 @@ module arduino_printable_top_slants(){
     arduino_printable_top_slant();
 }
 
+module stackable_printable_top_slant(){
+    //arduino groove printable top slant
+    translate([0,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.9,chassis_h-radius-arduino_pcb_thickness+1.1])
+    rotate([90,45,90])
+    cylinder(d = arduino_pcb_thickness+.5, h = arduino_length-wall_width/2, center=true, $fn=3);
+}
+//stackable_printable_top_slants();
+module stackable_printable_top_slants(){
+    stackable_printable_top_slant();
+    mirror([0,1,0])
+    stackable_printable_top_slant();
+    mirror([1,1,0])
+    scale([.78,1,1])    
+    translate([0,-7,0])
+    stackable_printable_top_slant();    
+}
+
 module stackable_groove_stopper(){
     //arduino groove stoppers
     translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness])
     rotate([0,90,0])
-    cylinder(d=arduino_pcb_thickness, h=2,center=true);
+    cylinder(d=arduino_pcb_thickness*1.5, h=2,center=true);
 }
 
 
@@ -189,9 +205,9 @@ module stackable_groove_stoppers(){
 
 module arduino_groove_stopper(){
     //arduino groove stoppers
-    translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness-15])
+    translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness-14.7])
     rotate([0,90,0])
-    cylinder(d=arduino_pcb_thickness, h=2,center=true);
+    cylinder(d=arduino_pcb_thickness*1.5, h=2,center=true);
 }
 
 
