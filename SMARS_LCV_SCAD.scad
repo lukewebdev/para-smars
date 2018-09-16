@@ -1,6 +1,6 @@
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
-//$fa=1;
-//$fs=1.5;
+$fa=1;
+$fs=1.5;
 
 //END DEVEL ONLY
 
@@ -34,7 +34,7 @@ wheel_diameter = 31;
 //CHASSIS CONF
 rear_wheel_buffer = 11;
 wall_width = 3.6;
-radius = 50;//not more than ten or need to adjust stepper mount hub code
+radius = 5;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  battery_w+44; // 40 is two stepper motors
 chassis_h = battery_h + radius;
 chassis_l = battery_l + radius*2+10;
@@ -50,7 +50,7 @@ difference(){
         //stepper_mount_plate();
        //battery_case();
     }    
-    steppers();
+    //steppers();
     stepper_holes();
 //    battery_case();
 }
@@ -59,18 +59,20 @@ difference(){
 //steppers();
 //battery_case();
 //arduino();
-chassis_top();
+//chassis_top();
 
 
 module chassis_exterior_subtract(){
-      render()
+
+      //render()
+
     color("gray")
         roundedCube([chassis_l,chassis_w,chassis_h], xcorners=[true,false,false,true], zcorners=[true,false,false,true], r=radius, x=true, y=true, z=true, center=true, $fn=30);
 }
 
 
 module chassis_interior_subtract(){
-        render()
+        //render()
         color("gray")
         ///main cavity
        roundedCube([chassis_l-wall_width,chassis_w-wall_width,chassis_h-wall_width], xcorners=[true,false,false,true], zcorners=[true,false,false,true], r=radius, x=true, y=true, z=true, center=true, $fn=30);
@@ -78,7 +80,7 @@ module chassis_interior_subtract(){
 }
 
 module chassis_top_subtract(){
-    render()
+    //render()
     translate([0,0,chassis_h/2])
     cube([chassis_l*2,chassis_w+wall_width*2,6], center=true);
 }
@@ -109,10 +111,10 @@ module chassis(){
     difference(){
         chassis_exterior_subtract();
         chassis_interior_subtract();
-        chassis_top_subtract();
+       // chassis_top_subtract();
     }
     
-   pins_roof_female();    
+   //pins_roof_female();    
 }
 
 
@@ -185,6 +187,7 @@ module SL_axles(){
                 SL_axle(); 
                 hub();
             }   
+                    scale([.99,.99,.99])
         chassis_exterior_subtract();
     }
 
@@ -196,7 +199,8 @@ module SL_axles(){
                 mirror([0,1,0])
                 SL_axle(); 
                 hub();
-            }   
+            }  
+                   scale([.99,.99,.99]) 
         chassis_exterior_subtract();
     }
 
@@ -275,15 +279,15 @@ module stepper(){
     //now scoot it to the side
     translate([0,chassis_w/2-10,0])
     rotate([90,-90,0])
-    render()
+    //render()
     StepMotor28BYJ();
 }
 module steppers(){
-    render(){
+    //render(){
         stepper();
         mirror([0,1,0])
         stepper();   
-    }
+//    }
     
 }
 
@@ -365,7 +369,7 @@ module visual_wheel_align(){
 
 module arduino(){
 
-    rotate([0,0,-90])
-    translate([35,40,30])    
-    import("import/Arduino.stl");
+   // rotate([0,0,-90])
+   // translate([35,40,30])    
+    //import("import/Arduino.stl");
 }
