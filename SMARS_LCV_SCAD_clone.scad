@@ -1,7 +1,17 @@
+//TODO
+//1. Fix Axle no support print isssue...possibly fault of zero percent infill?
+//2. FIXED Make room for bottom solder points on arduino groove
+//3. FIXED tighten spacing on stepper holders - mirror one, affix to back some sort of tie-in to keep them straight.
+//4. FIXED fix holes in bottom near bottom stepper...maybe raising stepper assembly up just a bit would not imbalance the robot but would fix issue. stepper scoop is leaving floor too thing
+//4. FIXED wall on front modoule mount is too thick to fit modules
+
+
+
+
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
 $fa=1;
 $fs=1.5;
-$fn=15;
+$fn=20;
 fn=$fn;
 //END DEVEL ONLY
 
@@ -31,43 +41,49 @@ axle_h = 16;
 wheel_width = 21;
 wheel_width_beyond_sl_axle = 12;
 wheel_diameter = 31;
+sl_axle_ledge=.5;
 
 //arduino and module groove config
 arduino_pcb_thickness = 1.7;
 arduino_width = 53;
+//arduino_length = 62.8;
 arduino_length = 66;
 
 //CHASSIS CONF
 rear_wheel_buffer = 11;
-wall_width = 3.6;
+wall_width = 3;//orig 3.6 but SMARS seems to be 3
+//bottom_width = 3.6; //may need to increase thickness if stepper bottom scoop is leaving holes in the floor.
 radius = 5;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  58; // 40 is two stepper motors
-chassis_h =58;
+chassis_h =58+ radius;
 chassis_l = 70;
 roof_offset = 40; // just how high to show roof separate from chassis
 echo(chassis_l);
 echo(chassis_w);
 echo(chassis_h);
 front_back_hex_d=35;
+side_hex_d=35;
 
 chassis_render();
 
 module chassis_render(){
-    difference(){
-       chassis();
-       diffs();
+    union(){
+        difference(){
+           //render()
+           chassis();
+           diffs();
+        }
+        chassis_interior();
     }
-    chassis_interior();
-    
     
     //preview only
-    //preview_parts();
+    preview_parts();
 }
 
 module preview_parts(){
     //orig();
-    stepper_motors();
-    stepper_drivers();    
+    //stepper_motors();
+    //stepper_drivers();    
 }
 
 
@@ -101,14 +117,21 @@ module chassis_interior(){
 
 
 module diffs(){
-    //chassis cavity
+    //chassis cavity - this version has equal wall width on all sides.
+    //This results in front wall being too thick to accept SMARS module
+    //translate([0,0,chassis_h/2])
+    //cube([chassis_l-wall_width*2, chassis_w-wall_width*2, chassis_h-wall_width*2], center=true);
+    
     translate([0,0,chassis_h/2])
-    cube([chassis_l-wall_width*2, chassis_w-wall_width*2, chassis_h-wall_width*2], center=true);
+    cube([chassis_l-2.2*2, chassis_w-wall_width*2, chassis_h-wall_width*2], center=true);//2.2 is to ensure thinner front wall width to acecpt SMARS modules
+
+    
     
     //big center cable hole
-    translate([0,0,chassis_h/1.4])
-    rotate([90,0,0])
-    cylinder(h = chassis_w, d = 27, $fn = 6, center = true);
+    //translate([0,0,chassis_h/1.4])
+    translate([0,0,chassis_h/1.5])
+    rotate([90,90,0])
+    cylinder(h = chassis_w, d = side_hex_d, $fn = 6, center = true);
     
     //front and back hole
     translate([0,0,chassis_h/1.75])
@@ -140,6 +163,7 @@ module diffs(){
 
     //arduino groove
     translate([0,0,chassis_h-radius-arduino_pcb_thickness-15])
+    color("yellow")
     cube([arduino_length,arduino_width,arduino_pcb_thickness],center=true); 
     
     //arduino top slant printable groove
@@ -149,8 +173,9 @@ module diffs(){
 
     
     //top stackable module groove
-    translate([0,0,chassis_h-radius-arduino_pcb_thickness])
-    cube([arduino_length,arduino_width,arduino_pcb_thickness],center=true);    
+    color("yellow")
+    translate([-.5,0,chassis_h-radius-arduino_pcb_thickness])
+    cube([chassis_l-wall_width*2+1,arduino_width,arduino_pcb_thickness],center=true);    //length minus due to back wall
     stackable_printable_top_slants();
     stackable_groove_stoppers();    
 
@@ -160,7 +185,7 @@ module diffs(){
 
 module arduino_printable_top_slant(){
     //arduino groove printable top slant
-    translate([0,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.9,chassis_h-radius-arduino_pcb_thickness-13.89])
+    translate([0,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.3,chassis_h-radius-arduino_pcb_thickness-13.89])
     rotate([90,45,90])
     cylinder(d = arduino_pcb_thickness+.5, h = arduino_length, center=true, $fn=3);
 }
@@ -173,26 +198,27 @@ module arduino_printable_top_slants(){
 
 module stackable_printable_top_slant(){
     //arduino groove printable top slant
-    translate([0,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.9,chassis_h-radius-arduino_pcb_thickness+1.1])
+    translate([-.5,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.3,chassis_h-radius-arduino_pcb_thickness+1.1])
     rotate([90,45,90])
-    cylinder(d = arduino_pcb_thickness+.5, h = arduino_length-wall_width/2, center=true, $fn=3);
+    color("red")
+    cylinder(d = arduino_pcb_thickness+.5, h = chassis_l-wall_width*2+1, center=true, $fn=3);//length minus to avoid back wall
 }
 //stackable_printable_top_slants();
 module stackable_printable_top_slants(){
     stackable_printable_top_slant();
     mirror([0,1,0])
     stackable_printable_top_slant();
-    mirror([1,1,0])
+   /* mirror([1,1,0])//rear top slant
     scale([.78,1,1])    
     translate([0,-7,0])
-    stackable_printable_top_slant();    
+    stackable_printable_top_slant(); */   
 }
 
 module stackable_groove_stopper(){
     //arduino groove stoppers
-    translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness])
+    translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness-.1])
     rotate([0,90,0])
-    cylinder(d=arduino_pcb_thickness*1.5, h=2,center=true);
+    cylinder(d=arduino_pcb_thickness*1, h=3,center=true);
 }
 
 
@@ -205,9 +231,9 @@ module stackable_groove_stoppers(){
 
 module arduino_groove_stopper(){
     //arduino groove stoppers
-    translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness-14.7])
+    translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness-14.9])
     rotate([0,90,0])
-    cylinder(d=arduino_pcb_thickness*1.5, h=2,center=true);
+    cylinder(d=arduino_pcb_thickness*1, h=3,center=true);
 }
 
 
@@ -218,6 +244,7 @@ module arduino_groove_stoppers(){
 }
 
 module rear_module_hitch(){
+    //render()
     difference(){
          
         translate([chassis_l/2+stepper_motor_max_d/2-wall_width/2-1,0,14])
@@ -241,6 +268,7 @@ module top_stepper_housing_cutout_block(){
 }
 
 module rear_system(){
+    //render()
     translate([chassis_l/2,0,stepper_motor_max_d/2])
     rotate([90,0,0])
     difference(){
@@ -261,32 +289,43 @@ module orig(){
 
 module stepper_driver(){
     color("green")
-    translate([-chassis_l/2 + stepper_driver_w/2 + wall_width*2 + stepper_driver_front_offset,chassis_w/2-wall_width*2-groove_d/2,stepper_driver_h/2+wall_width])
+    //translate([-chassis_l/2 + stepper_driver_w/2 + wall_width*2 + stepper_driver_front_offset,chassis_w/2-wall_width*2-groove_d/2,stepper_driver_h/2+wall_width])
+    translate([0,0,stepper_driver_h/2 + wall_width])
+    rotate([0,0,90])
     cube([stepper_driver_w,  stepper_driver_t,stepper_driver_h],center=true);
 }
 
 module stepper_drivers(){
     stepper_driver();
     mirror([0,1,0])
+    translate([-24,0,0])
     stepper_driver();
 }
 
 
 module stepper_driver_holder(){
+
     post_w = 4;
     post_l = 6;
     post_h  = stepper_driver_h/2 + wall_width;
     post_z = post_h/2 + wall_width;
 
     //stepper driver spacing
-    translate([-stepper_driver_w/2 - groove_d,0,0])
-    difference(){
-        translate([0,0,post_z])
-        cube([post_w,post_l,post_h], center = true);
-        //groove
-        translate([post_w/2,-groove_d,post_z])
-        cube([groove_d,groove_d,stepper_driver_h/2 + wall_width], center = true);    
+    //render()    
+    translate([-stepper_driver_w/2 - post_w/2 + groove_d/2,0,0]){
+        difference(){
+            translate([0,0,post_z])
+            cube([post_w,post_l,post_h], center = true);
+            //groove
+            translate([post_w/2,-groove_d,post_z])
+            cube([groove_d,groove_d,stepper_driver_h/2 + wall_width], center = true);    
+        }
+        //vertical brace to chassis
+        color("red")
+        translate([-5,0,post_h-post_w/2])
+        cube([post_w*2, post_w/2, post_w/2], center=true);
     }
+
 }
 
 module stepper_driver_holders(){
@@ -302,8 +341,8 @@ module stepper_driver_holders(){
 module stepper_driver_holders_set(){
     rotate([0,0,90]){
         translate([0,-1.5,0])        
+        mirror([0,1,0])
         stepper_driver_holders();
-     //   mirror([0,1,0])
         translate([0,25,0])
         stepper_driver_holders();    
     }
@@ -319,33 +358,49 @@ module SL_axles(){
 
 module SL_axle(){
         //put at bottom
-
-
+        //render()
         translate([-chassis_l/2+axle_d/2,chassis_w/2+3,axle_d/2])
         rotate([-90,0,0])
-        difference(){
+        union(){
+            difference(){
 
-            hollowCylinder(d=axle_d, h=axle_h, wallWidth=3, center=true);
-            //inner chamfer
-            torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
-            //outer chamfer
-            translate([0,0,9.5])
-            torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
-            
-            //inner rim of outside axle
-            translate([0,0,3])
-            hollowCylinder(d=axle_d, h=2, wallWidth=.4, center=true);
-            
-            //slot for flex
-            cube([3,axle_d,axle_h], center=true);
+                hollowCylinder(d=axle_d, h=axle_h, wallWidth=3, center=true);
+                //inner chamfer
+                torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
+                //outer chamfer
+                translate([0,0,9.5])
+                torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
+                
+                //inner rim of outside axle
+                //translate([0,0,3])
+                //hollowCylinder(d=axle_d, h=2, wallWidth=.4, center=true);
+                
+                //slot for flex
+                cube([3,axle_d,axle_h], center=true);
+            }
+
+            //add lip
+            difference(){
+                color("red")
+                union(){
+                    translate([0,0,4.25])
+                    hollowCylinder(d=axle_d, h=1.6, wallWidth=3, center=true);
+                    translate([0,0,-3.25])
+                    hollowCylinder(d=axle_d, h=1.6, wallWidth=3, center=true);                    
+                }
+                cube([3,axle_d,axle_h], center=true);
+            }
         }
+        
 
 }
 
 
 //rear_triangle_cutout();
 module rear_triangle_cutout(){
+
     tw_offset=10;
+    render()
     translate([chassis_l/2 - wall_width,-chassis_w/2+wall_width,40])
     rotate([90,0,90])
     //trapezoid(width_base, width_top, height, thickness)
@@ -370,7 +425,7 @@ module stepper_holes(){
         color("green")
         rotate([0,0,90])
         translate([0,-26.5,1])
-    //    render()
+        render()
 
         union(){
             
@@ -389,7 +444,7 @@ module stepper_holes(){
                        
             
             //scoop out for shape of stepper on bottom floor
-            translate([0,-1.5,17])
+            translate([0,-.25,17.8])
             rotate([0,90,0])
             cylinder(h=chassis_w-wall_width*2, d= stepper_motor_max_d, center = true);     
             
