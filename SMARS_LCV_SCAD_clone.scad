@@ -1,17 +1,17 @@
 //TODO
-//1. Fix Axle no support print isssue...possibly fault of zero percent infill?
+//1. FIXED...maybe need tree support ...Fix Axle no support print isssue...possibly fault of zero percent infill?
 //2. FIXED Make room for bottom solder points on arduino groove
 //3. FIXED tighten spacing on stepper holders - mirror one, affix to back some sort of tie-in to keep them straight.
 //4. FIXED fix holes in bottom near bottom stepper...maybe raising stepper assembly up just a bit would not imbalance the robot but would fix issue. stepper scoop is leaving floor too thing
 //4. FIXED wall on front modoule mount is too thick to fit modules
-
+//5. FIXED Forgot battery holders!
 
 
 
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
 $fa=1;
 $fs=1.5;
-$fn=20;
+$fn=15;
 fn=$fn;
 //END DEVEL ONLY
 
@@ -21,6 +21,8 @@ use <use/openscad/roundedCube.scad>
 use <use/openscad/pinConnector.scad>
 use <use/openscad/shapes.scad>
 use <use/StepMotor_28BYJ-48.scad>
+use <use/smars_18650_single_holder.scad>
+
 
 
 
@@ -49,14 +51,26 @@ arduino_width = 53;
 //arduino_length = 62.8;
 arduino_length = 66;
 
+//BATTERY CONF
+battery_z = 40;
+
 //CHASSIS CONF
 rear_wheel_buffer = 11;
 wall_width = 3;//orig 3.6 but SMARS seems to be 3
 //bottom_width = 3.6; //may need to increase thickness if stepper bottom scoop is leaving holes in the floor.
+
 radius = 5;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  58; // 40 is two stepper motors
 chassis_h =58+ radius;
 chassis_l = 70;
+
+/*
+radius = 5;//not more than ten or need to adjust stepper mount hub code
+chassis_w =  75; // 40 is two stepper motors
+chassis_h =58+ radius;
+chassis_l = 100;
+*/
+
 roof_offset = 40; // just how high to show roof separate from chassis
 echo(chassis_l);
 echo(chassis_w);
@@ -74,6 +88,7 @@ module chassis_render(){
            diffs();
         }
         chassis_interior();
+        chassis_exterior();
     }
     
     //preview only
@@ -115,6 +130,27 @@ module chassis_interior(){
 }
 
 
+module chassis_exterior(){
+    rotate([0,0,90])
+    batteries();
+
+}
+
+module batteries(){
+    render()
+    union(){
+        translate([chassis_w/2+wall_width+5.25,0,battery_z])
+        color("yellow")
+        rotate([0,75,0])
+        battery_holder_single();
+
+        mirror([1,0,0])
+        translate([chassis_w/2+wall_width+5.25,0,battery_z])
+        rotate([0,75,0])
+        battery_holder_single();
+    }
+    
+}
 
 module diffs(){
     //chassis cavity - this version has equal wall width on all sides.
@@ -322,8 +358,8 @@ module stepper_driver_holder(){
         }
         //vertical brace to chassis
         color("red")
-        translate([-5,0,post_h-post_w/2])
-        cube([post_w*2, post_w/2, post_w/2], center=true);
+        translate([-(chassis_w/2-stepper_driver_w/2)/2+wall_width/2,0,post_h-post_w/2])
+        cube([chassis_w/2-stepper_driver_w/2-groove_d, post_w/2, post_w/2], center=true);
     }
 
 }
@@ -381,7 +417,7 @@ module SL_axle(){
 
             //add lip
             difference(){
-                color("red")
+               // color("red")
                 union(){
                     translate([0,0,4.25])
                     hollowCylinder(d=axle_d, h=1.6, wallWidth=3, center=true);
