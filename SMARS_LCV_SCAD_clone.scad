@@ -39,7 +39,7 @@ stepper_motor_max_d = 35;
 stepper_motor_main_d = 28;
 //WHEEL CONF
 axle_d = 16;
-axle_h = 16;
+axle_h = 15;
 wheel_width = 21;
 wheel_width_beyond_sl_axle = 12;
 wheel_diameter = 31;
@@ -52,7 +52,8 @@ arduino_width = 53;
 arduino_length = 66;
 
 //BATTERY CONF
-battery_z = 40;
+battery_z = 41;
+battery_tilt=65;
 
 //CHASSIS CONF
 rear_wheel_buffer = 11;
@@ -61,7 +62,7 @@ wall_width = 3;//orig 3.6 but SMARS seems to be 3
 
 radius = 5;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  58; // 40 is two stepper motors
-chassis_h =58+ radius;
+chassis_h =56.5+ radius;
 chassis_l = 70;
 
 /*
@@ -98,7 +99,7 @@ module chassis_render(){
 module preview_parts(){
     //orig();
     //stepper_motors();
-    //stepper_drivers();    
+    stepper_drivers();    
 }
 
 
@@ -141,12 +142,12 @@ module batteries(){
     union(){
         translate([chassis_w/2+wall_width+5.25,0,battery_z])
         color("yellow")
-        rotate([0,75,0])
+        rotate([0,battery_tilt,0])
         battery_holder_single();
 
         mirror([1,0,0])
         translate([chassis_w/2+wall_width+5.25,0,battery_z])
-        rotate([0,75,0])
+        rotate([0,battery_tilt,0])
         battery_holder_single();
     }
     
@@ -404,9 +405,11 @@ module SL_axle(){
                 //inner chamfer
                 torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
                 //outer chamfer
-                translate([0,0,9.5])
-                torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
+                //translate([0,0,9.5])
+                //torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
                 
+                translate([0,0,12])
+                torus(d1=axle_d-5, d2=axle_d, fill=false, center=true);               
                 //inner rim of outside axle
                 //translate([0,0,3])
                 //hollowCylinder(d=axle_d, h=2, wallWidth=.4, center=true);

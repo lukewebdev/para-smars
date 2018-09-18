@@ -107,7 +107,7 @@ module portabaterias() {
           translate([0,0,10.5])
           cube([20,70,19],center=true);
           translate([10,0,4.5])
-          cube([100,52,41],center=true);
+          cube([100,40,41],center=true);
         }
         sphere(r=1,center=true);
       }
