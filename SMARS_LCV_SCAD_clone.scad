@@ -1,17 +1,9 @@
-//TODO
-//1. FIXED...maybe need tree support ...Fix Axle no support print isssue...possibly fault of zero percent infill?
-//2. FIXED Make room for bottom solder points on arduino groove
-//3. FIXED tighten spacing on stepper holders - mirror one, affix to back some sort of tie-in to keep them straight.
-//4. FIXED fix holes in bottom near bottom stepper...maybe raising stepper assembly up just a bit would not imbalance the robot but would fix issue. stepper scoop is leaving floor too thing
-//4. FIXED wall on front modoule mount is too thick to fit modules
-//5. FIXED Forgot battery holders!
-
 
 
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
 $fa=1;
 $fs=1.5;
-$fn=15;
+$fn=100;
 fn=$fn;
 //END DEVEL ONLY
 
@@ -52,7 +44,7 @@ arduino_width = 53;
 arduino_length = 66;
 
 //BATTERY CONF
-battery_z = 41;
+battery_z = 42;
 battery_tilt=65;
 
 //CHASSIS CONF
@@ -73,11 +65,8 @@ chassis_l = 100;
 */
 
 roof_offset = 40; // just how high to show roof separate from chassis
-echo(chassis_l);
-echo(chassis_w);
-echo(chassis_h);
 front_back_hex_d=35;
-side_hex_d=35;
+side_hex_d=32;
 
 chassis_render();
 
@@ -93,7 +82,7 @@ module chassis_render(){
     }
     
     //preview only
-    preview_parts();
+    //preview_parts();
 }
 
 module preview_parts(){
@@ -140,13 +129,13 @@ module chassis_exterior(){
 module batteries(){
     render()
     union(){
-        translate([chassis_w/2+wall_width+5.25,0,battery_z])
+        translate([chassis_w/2+wall_width+5.35,0,battery_z])
         color("yellow")
         rotate([0,battery_tilt,0])
         battery_holder_single();
 
         mirror([1,0,0])
-        translate([chassis_w/2+wall_width+5.25,0,battery_z])
+        translate([chassis_w/2+wall_width+5.35,0,battery_z])
         rotate([0,battery_tilt,0])
         battery_holder_single();
     }
