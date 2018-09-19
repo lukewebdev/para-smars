@@ -52,6 +52,12 @@ rear_wheel_buffer = 11;
 wall_width = 3;//orig 3.6 but SMARS seems to be 3
 //bottom_width = 3.6; //may need to increase thickness if stepper bottom scoop is leaving holes in the floor.
 
+
+//MODULE HOLDER CONFIG
+module_difference_x=42.5;
+module_difference_y=4;
+module_difference_z=15;
+
 radius = 5;//not more than ten or need to adjust stepper mount hub code
 chassis_w =  58; // 40 is two stepper motors
 chassis_h =56.5+ radius;
@@ -160,10 +166,18 @@ module diffs(){
     cylinder(h = chassis_w, d = side_hex_d, $fn = 6, center = true);
     
     //front and back hole
-    translate([0,0,chassis_h/1.75])
+    /*
+    translate([0,0,chassis_h/2.1])
     rotate([90,90,90])
     cylinder(h = chassis_l, d = front_back_hex_d, $fn = 6, center = true);
-        
+        */
+
+    //front top tool attachment
+    rotate([0,0,90])  
+    translate([0, -chassis_l/2+wall_width - module_difference_y/2,chassis_h/2 + 15 + wall_width*1.1])
+    color("red")
+    module_difference();
+    
     //cut off top
     translate([0,0,chassis_h-radius/2])
     cube([chassis_l, chassis_w, radius], center=true);
@@ -181,10 +195,10 @@ module diffs(){
     translate([+chassis_l/2 - wall_width/2+stepper_motor_max_d/2,0,14/2 + 8])
     cube([wall_width*5, 50.5, 16], center = true);
 
-    rear_triangle_cutout();
-
+    //rear_triangle_cutout();
+    render()
     stepper_holes();
-    
+    render()
     stepper_motors();
 
     //arduino groove
@@ -206,6 +220,7 @@ module diffs(){
     stackable_groove_stoppers();    
 
 }
+
 
     //arduino_printable_top_slants();
 
@@ -272,14 +287,10 @@ module arduino_groove_stoppers(){
 module rear_module_hitch(){
     //render()
     difference(){
-         
         translate([chassis_l/2+stepper_motor_max_d/2-wall_width/2-1,0,14])
         rotate([14,0,90])
-
-        difference(){
-            cube([chassis_w-7, 2, 14], center = true);
-            cube([42.5, 4, 15], center = true);
-        }
+         
+        module_attachment();
         translate([chassis_l/2,0,stepper_motor_max_d/2])
         rotate([90,0,0])        
         translate([0,stepper_motor_max_d/2+3,0])        
@@ -287,6 +298,18 @@ module rear_module_hitch(){
     }   
 }
 
+
+module module_attachment(){
+
+    difference(){
+        cube([chassis_w-7, 2, 14], center = true);
+            cube([module_difference_x, module_difference_y, module_difference_z], center = true);
+    }
+}
+
+module module_difference(){//what to subtract (if in a wall and don't need sides)
+    cube([module_difference_x, module_difference_y, module_difference_z], center = true);
+}
 
 
 module top_stepper_housing_cutout_block(){
