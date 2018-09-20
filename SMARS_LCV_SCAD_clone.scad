@@ -93,10 +93,26 @@ module chassis_render(){
 
 module preview_parts(){
     //orig();
-    //stepper_motors();
-    stepper_drivers();    
+    stepper_motors();
+    stepper_drivers(); 
+    arduinos(); 
+    
+
 }
 
+module arduino(){
+    translate([-10,-35,70.5])
+    rotate([0,0,270])
+    import("import/Arduino.stl");
+}
+
+
+module arduinos(){
+    arduino();
+    translate([0,0,15])
+    arduino();
+
+}
 
 module stepper_motor(){
     translate([chassis_l/2 - 8.5,chassis_w/2 - 12.9,16])    
@@ -303,12 +319,12 @@ module module_attachment(){
 
     difference(){
         cube([chassis_w-7, 2, 14], center = true);
-            cube([module_difference_x, module_difference_y, module_difference_z], center = true);
+        cube([module_difference_x, module_difference_y, module_difference_z], center = true);
     }
 }
 
 module module_difference(){//what to subtract (if in a wall and don't need sides)
-    cube([module_difference_x, module_difference_y, module_difference_z], center = true);
+    cube([module_difference_x, module_difference_y, module_difference_z+2], center = true);
 }
 
 
