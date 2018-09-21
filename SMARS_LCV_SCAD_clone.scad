@@ -1,11 +1,27 @@
+//usage
+chassis_render();
+
+//print test axles
+//bearing_608_axle_test();
 
 
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
 $fa=1;
 $fs=1.5;
-$fn=15;
-fn=$fn;
+//$fn=15;
 //END DEVEL ONLY
+
+
+//EXPORT RENDER
+$fn=60;
+
+//end EXPORT RENDER
+
+
+
+
+fn=$fn;
+
 
 use <use/openscad/hollowCylinder.scad>
 use <use/openscad/torus.scad>
@@ -29,6 +45,7 @@ stepper_driver_t = 1.5;
 stepper_driver_front_offset = 2.2;//make room for tool modules
 stepper_motor_max_d = 35;
 stepper_motor_main_d = 28;
+stepper_hole_mount_d  = 4.5;
 //WHEEL CONF
 axle_d = 16;
 axle_h = 15;
@@ -37,7 +54,12 @@ wheel_d = 31;
 wheel_width_beyond_sl_axle = 12;
 wheel_d = 31;
 sl_axle_ledge=.5;
+
+//BEARING (if applicable)
 use_608_bearing = false;
+bearing_608_axle_d = 8;//608 bearing has 8mm inner diameter
+bearing_chassis_offset = 10;
+bearing_608_axle_h = axle_h + bearing_chassis_offset;
 
 //Print Tweaks
 //manual_brim = true;
@@ -84,10 +106,10 @@ roof_offset = 40; // just how high to show roof separate from chassis
 front_back_hex_d=35;
 side_hex_d=32;
 
-chassis_render();
+
 if(use_608_bearing == true){
     //generate non-standard bearing wheels and bearing retainers
-    wheels_render();
+    //wheels_render();
 }
 module chassis_render(){
     union(){
@@ -101,7 +123,7 @@ module chassis_render(){
     }
     
     //preview only
-    //preview_parts();
+   // preview_parts();
 }
 
 module wheels_render(){
@@ -121,13 +143,13 @@ module wheel_render(){
 module preview_parts(){
     //orig();
     color("blue")
-   // stepper_motors();
-    color("green")
-    //stepper_drivers(); 
-    color("blue")
+    stepper_motors();
+  //  color("green")
+  //  stepper_drivers(); 
+  //  color("blue")
     //arduinos(); 
     
-    preview_bearings();
+  //  preview_bearings();
     
 
 }
@@ -177,7 +199,6 @@ module chassis(){
 }
 module chassis_interior(){
     stepper_driver_holders_set();
-    rear_module_hitch();
 }
 
 
@@ -230,7 +251,6 @@ module diffs(){
     //front top tool attachment
     rotate([0,0,90])  
     translate([0, -chassis_l/2+wall_width - module_difference_y/2,chassis_h/2 + 15 + wall_width*1.1])
-    color("red")
     module_difference();
     
     //cut off top
@@ -240,15 +260,16 @@ module diffs(){
 
     //tool tattachment front
     translate([-chassis_l/2 + wall_width/2,0,14/2 + 22])
-        cube([wall_width, 42.5, 28], center = true);
-        
+    rotate([0,0,90])  
+    mirror([0,1,0])
+    module_difference();
     //top front cutout
     translate([-chassis_l/2 + wall_width/2,0,14/2 + 56])
         cube([wall_width, chassis_w-wall_width*2, 56], center = true);
 
-        //tool tattachment rear cutout
-    translate([+chassis_l/2 - wall_width/2+stepper_motor_max_d/2,0,14/2 + 8])
-    cube([wall_width*5, 50.5, 16], center = true);
+    //tool tattachment rear cutout
+    //translate([+chassis_l/2 - wall_width/2+stepper_motor_max_d/2,0,14/2 + 8])
+    //cube([wall_width*5, 50.5, 16], center = true);
 
     //rear_triangle_cutout();
     render()
@@ -274,6 +295,10 @@ module diffs(){
     stackable_printable_top_slants();
     stackable_groove_stoppers();    
 
+    
+    //cut off everything below z=0
+    translate([0,0,-5])
+    cube([chassis_l + stepper_motor_max_d, chassis_w + axle_h*2, 10], center=true);
 }
 
 
@@ -343,30 +368,14 @@ module arduino_groove_stoppers(){
     arduino_groove_stopper();
 }
 
-module rear_module_hitch(){
-    //render()
-    difference(){
-        translate([chassis_l/2+stepper_motor_max_d/2-wall_width/2-1,0,14])
-        rotate([14,0,90])
-         
-        module_attachment();
-        translate([chassis_l/2,0,stepper_motor_max_d/2])
-        rotate([90,0,0])        
-        translate([0,stepper_motor_max_d/2+3,0])        
-        top_stepper_housing_cutout_block();
-    }   
-}
-
-
-module module_attachment(){
-
-    difference(){
-        cube([chassis_w-7, 2, 14], center = true);
-        cube([module_difference_x, module_difference_y, module_difference_z], center = true);
-    }
-}
-
+//module_difference();
 module module_difference(){//what to subtract (if in a wall and don't need sides)
+    //mount hole
+    translate([0,2.5 + stepper_hole_mount_d,module_difference_z/2 - stepper_hole_mount_d-1.15])
+    rotate([0,90,0])
+    cylinder(h=chassis_w+1, d = 4.5, center=true);
+   
+    
     cube([module_difference_x, module_difference_y, module_difference_z+2], center = true);
 }
 
@@ -374,19 +383,31 @@ module module_difference(){//what to subtract (if in a wall and don't need sides
 module top_stepper_housing_cutout_block(){
     cube([stepper_motor_max_d,stepper_motor_max_d,chassis_w ], center=true);                
 }
-
+                
 module rear_system(){
     //render()
     translate([chassis_l/2,0,stepper_motor_max_d/2])
     rotate([90,0,0])
     difference(){
-        rotate([0,0,18])
-        cylinder(h=chassis_w, d=stepper_motor_max_d, center = true);
-        cylinder(h=chassis_w-wall_width*2, d=stepper_motor_max_d-wall_width*2, center = true);    
-        translate([0,stepper_motor_max_d/2+3,0])
+        rotate([0,0,0])
+        //main cube
+        roundedcube(size = [stepper_motor_max_d, stepper_motor_max_d, chassis_w], radius = 6, apply_to = "all", center=true);
+        
+        //main hollow
+        cube([stepper_motor_max_d-2.2*2, stepper_motor_max_d-wall_width*2, chassis_w-wall_width*2], center=true);
+        
+        //cylinder(h=chassis_w-wall_width*2, d=stepper_motor_max_d-wall_width*2, center = true);    
+        translate([0,stepper_motor_max_d/2+5,0])
         top_stepper_housing_cutout_block();
+        
+
+        translate([16,-stepper_motor_max_d/2-chassis_l/2+1.2+48,0])
+        rotate([0,90,90])
+        color("red")
+        module_difference();                
     }
 }
+
 
 
 module orig(){
@@ -464,8 +485,6 @@ module SL_axles(){
             mirror([0,1,0])
             SL_axle(); 
         }
-        translate([0,0,-.5])
-        cube([chassis_l + stepper_motor_max_d, chassis_w + axle_h*2, 1], center=true);
     }
 }
 
@@ -506,11 +525,16 @@ module SL_axle(){
                 cube([3,axle_d,axle_h], center=true);
             }
         }
-        
-
 }
 
 module bearing_608_axles(){
+    color("yellow")
+    translate([-chassis_l/2+axle_d/2,chassis_w/2+3,axle_d/2])
+    rotate([90,90,0])
+    cylinder(h=7, d=22.4, center=true);
+    
+    
+    
     bearing_608_axle(); 
     mirror([0,1,0])
     bearing_608_axle(); 
@@ -518,23 +542,30 @@ module bearing_608_axles(){
 module bearing_608_axle(){
     //put at bottom
     //render()
-    bearing_608_axle_d = 8;//608 bearing has 8mm inner diameter
-    bearing_chassis_offset = 10;
-    bearing_608_axle_h = axle_h + bearing_chassis_offset;
+
     translate([-chassis_l/2+axle_d/2,chassis_w/2+3,axle_d/2])//keep centered on original axle location, we want to add a bearing but not change distance between front and rear wheel...
     rotate([-90,0,0])
     union(){
         difference(){
+            union(){
+                
+                //outer hub
+                translate([0,0,9.8])
+                hollowCylinder(d=bearing_608_axle_d+.4, h=3, wallWidth=3, center=true);
 
-            hollowCylinder(d=bearing_608_axle_d+1, h=bearing_608_axle_h, wallWidth=2.5, center=true);
-            //inner chamfer
-            color("red")
-            translate([0,0,3.5 + bearing_chassis_offset/4])
-            //careful adjusting these, it matches 608 bearing
-            hollowCylinder(d=bearing_608_axle_d+3, h=7.5, wallWidth=1.5, center=true);//7mm bearing width. d accounts for wall width to arrive at difference leaving an 8mmm shaft
+                //inner axle
+                color("red")
+                translate([0,0,3.5 + bearing_chassis_offset/4])
 
+                hollowCylinder(d=bearing_608_axle_d, h=7, wallWidth=2.8, center=true);//7mm bearing width. d accounts for wall width to arrive at difference leaving an 8mmm shaft
+                
+                //inner hub
+                translate([0,0,2.1])
+                hollowCylinder(d=bearing_608_axle_d+1, h=3, wallWidth=3, center=true);
+
+            }
             //outer chamfer
-            translate([0,0,15])
+            translate([0,0,12.5])
             torus(d1=bearing_608_axle_d-2, d2=bearing_608_axle_d+1, fill=false, center=true);
             
             
@@ -550,6 +581,18 @@ module bearing_608_axle(){
     }
 }
 
+
+module bearing_608_axle_test(){
+    difference(){
+        union(){
+//            translate([-chassis_l/2+axle_d/2,chassis_w/2,axle_d/2])
+  //          cube([bearing_608_axle_d+1,bearing_608_axle_d/2,bearing_608_axle_d+1], center=true);
+            bearing_608_axle();
+        }
+        translate([-chassis_l/2+axle_d/2,chassis_w/2-6,axle_d/2])
+        cube([bearing_608_axle_d+2,bearing_608_axle_d+2,bearing_608_axle_d+2], center=true);
+    }
+}
 
 module preview_bearings(){
     hollowCylinder(d=bearing_608_axle_d, h=7, wallWidth=7, center=true);//608 bearing
@@ -591,11 +634,11 @@ module stepper_holes(){
             //mount hole
             translate([0, -17.5, 15])    
             rotate([0,90,0])
-            cylinder(h=chassis_w+1, d = 4.5, center=true);
+            cylinder(h=chassis_w+1, d = stepper_hole_mount_d, center=true);
             //mount hole
             translate([0, 17.5, 15])    
             rotate([0,90,0])
-            cylinder(h=chassis_w+1, d = 4.5, center=true);    
+            cylinder(h=chassis_w+1, d = stepper_hole_mount_d, center=true);    
             //shaft hole
             translate([0, 0, 7])    
             rotate([0,90,0])
@@ -606,7 +649,11 @@ module stepper_holes(){
             translate([0,-.25,17.8])
             rotate([0,90,0])
             cylinder(h=chassis_w-wall_width*2, d= stepper_motor_max_d, center = true);     
-            
+
+            //clean up under top tool module attachment
+            translate([0,-.25,19.8])
+            rotate([0,90,0])
+            cube([stepper_motor_max_d-5,stepper_motor_max_d+11,chassis_w-wall_width*2], center = true);                 
            
         }  
     
