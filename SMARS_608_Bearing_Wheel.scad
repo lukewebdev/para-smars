@@ -1,44 +1,43 @@
 //use <use/openscad/shapes.scad>
 
-$fn = 50;
-
 //wheel_slave_original();
-wheel_w = 21;
-axle_d=16;
-wheel_d = 31;
-pyramid_h = 2;
-rim_w = 1;
+
 
 wheel();
-module bearing(){
-    color("yellow")
-    cylinder(d=22, h=7);
-}
-
-
-module wheel(){
+module wheel(axle_d = 16, wheel_w=21, wheel_d = 31, pyramid_h = 2, rim_w=1){
     
     //main wheel
-    difference(){
-        union(){
-            rotate([0,0,022.5])
-            cylinder(d=wheel_d, h=wheel_w, center=true, $fn = 8);
-            //rims
-            translate([0,0,wheel_w/2 + rim_w/2])
-            cylinder(d=wheel_d, h = rim_w, center=true);
-            translate([0,0,-wheel_w/2 +- rim_w/2])
-            cylinder(d=wheel_d, h = rim_w, center=true);              
+    rotate([180,90,90])
+    union(){
+        difference(){
+            union(){
+                rotate([0,0,022.5])
+                cylinder(d=wheel_d, h=wheel_w, center=true, $fn = 8);
+                //rims
+                translate([0,0,wheel_w/2 + rim_w/2])
+                cylinder(d=wheel_d, h = rim_w, center=true);
+                translate([0,0,-wheel_w/2 +- rim_w/2])
+                cylinder(d=wheel_d, h = rim_w, center=true);              
+            }
+            cylinder(d=axle_d,h=wheel_w + rim_w*2,center=true);
+            bearing_608_difference(wheel_w=wheel_w, rim_w=rim_w);
         }
-        cylinder(d=axle_d,h=wheel_w + rim_w*2,center=true);
+      
+        //tread
+        pyramids(pyramid_h=pyramid_h, wheel_w = wheel_w);
     }
-  
-    //tread
-    pyramids();
 }
 
+module bearing_retainer(){
 
+}
+module bearing_608_difference(wheel_w=21, rim_w=1){
+    color("red")
+    translate([0,0,wheel_w/2+rim_w - 17/4])
+        cylinder(d=22, h=17, center=true);//7mm + 1 for extra depth into wheel, must correspond to axle configuration
+}
 
-module pyramids(){
+module pyramids(pyramid_h=2){
     for (i = [1 : 8]){
         color("red")
         rotate([45*i,90,0])

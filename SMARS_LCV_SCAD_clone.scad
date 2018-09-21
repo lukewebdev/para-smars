@@ -3,7 +3,7 @@
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
 $fa=1;
 $fs=1.5;
-$fn=100;
+$fn=15;
 fn=$fn;
 //END DEVEL ONLY
 
@@ -14,7 +14,7 @@ use <use/openscad/pinConnector.scad>
 use <use/openscad/shapes.scad>
 use <use/StepMotor_28BYJ-48.scad>
 use <use/smars_18650_single_holder.scad>
-
+use <SMARS_608_Bearing_Wheel.scad>
 
 
 
@@ -32,10 +32,19 @@ stepper_motor_main_d = 28;
 //WHEEL CONF
 axle_d = 16;
 axle_h = 15;
-wheel_width = 21;
+wheel_w = 21;
+wheel_d = 31;
 wheel_width_beyond_sl_axle = 12;
-wheel_diameter = 31;
+wheel_d = 31;
 sl_axle_ledge=.5;
+use_608_bearing = false;
+
+//Print Tweaks
+//manual_brim = true;
+
+
+pyramid_h = 2;
+rim_w = 1;
 
 //arduino and module groove config
 arduino_pcb_thickness = 1.7;
@@ -44,8 +53,9 @@ arduino_width = 53;
 arduino_length = 66;
 
 //BATTERY CONF
-battery_z = 42;
-battery_tilt=65;
+battery_z = 41.5;
+battery_tilt=0;
+battery_y_offset = 6.25;
 
 //CHASSIS CONF
 rear_wheel_buffer = 11;
@@ -75,7 +85,10 @@ front_back_hex_d=35;
 side_hex_d=32;
 
 chassis_render();
-
+if(use_608_bearing == true){
+    //generate non-standard bearing wheels and bearing retainers
+    wheels_render();
+}
 module chassis_render(){
     union(){
         difference(){
@@ -91,16 +104,36 @@ module chassis_render(){
     //preview_parts();
 }
 
+module wheels_render(){
+
+    wheel_render();
+    mirror([0,1,0])
+    wheel_render();
+}
+
+
+module wheel_render(){
+    render()
+    translate([-chassis_l/2 + wheel_d/4,chassis_w/2 + wheel_w/2 + rim_w + 1, + wheel_d/4])
+    wheel(axle_d = 16, wheel_w=21, wheel_d = 31, pyramid_h = 2, rim_w=1);
+}
+
 module preview_parts(){
     //orig();
-    stepper_motors();
-    stepper_drivers(); 
-    arduinos(); 
+    color("blue")
+   // stepper_motors();
+    color("green")
+    //stepper_drivers(); 
+    color("blue")
+    //arduinos(); 
+    
+    preview_bearings();
     
 
 }
 
 module arduino(){
+    render()
     translate([-10,-35,70.5])
     rotate([0,0,270])
     import("import/Arduino.stl");
@@ -115,6 +148,7 @@ module arduinos(){
 }
 
 module stepper_motor(){
+    render()
     translate([chassis_l/2 - 8.5,chassis_w/2 - 12.9,16])    
     rotate([90,90,0])
     StepMotor28BYJ();    
@@ -127,7 +161,12 @@ module stepper_motors(){
 
 module chassis(){
     //holesbox
-    SL_axles();        
+    if(use_608_bearing == true){
+        bearing_608_axles();
+    }else{
+        SL_axles();        
+    }
+    //SL_axles();        
     color("gray")
     translate([0,0,chassis_h/2])
     roundedcube(size = [chassis_l, chassis_w, chassis_h], radius = 6, apply_to = "all", center=true);
@@ -151,13 +190,13 @@ module chassis_exterior(){
 module batteries(){
     render()
     union(){
-        translate([chassis_w/2+wall_width+5.35,0,battery_z])
+        translate([chassis_w/2+wall_width+battery_y_offset,0,battery_z])
         color("yellow")
         rotate([0,battery_tilt,0])
         battery_holder_single();
 
         mirror([1,0,0])
-        translate([chassis_w/2+wall_width+5.35,0,battery_z])
+        translate([chassis_w/2+wall_width+battery_y_offset,0,battery_z])
         rotate([0,battery_tilt,0])
         battery_holder_single();
     }
@@ -177,7 +216,7 @@ module diffs(){
     
     //big center cable hole
     //translate([0,0,chassis_h/1.4])
-    translate([0,0,chassis_h/1.5])
+    translate([0,0,chassis_h/2 + 9.95])
     rotate([90,90,0])
     cylinder(h = chassis_w, d = side_hex_d, $fn = 6, center = true);
     
@@ -242,6 +281,7 @@ module diffs(){
 
 module arduino_printable_top_slant(){
     //arduino groove printable top slant
+    render()
     translate([0,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.3,chassis_h-radius-arduino_pcb_thickness-13.89])
     rotate([90,45,90])
     cylinder(d = arduino_pcb_thickness+.5, h = arduino_length, center=true, $fn=3);
@@ -254,6 +294,7 @@ module arduino_printable_top_slants(){
 }
 
 module stackable_printable_top_slant(){
+    render()
     //arduino groove printable top slant
     translate([-.5,-chassis_w/2+wall_width+arduino_pcb_thickness/2-.3,chassis_h-radius-arduino_pcb_thickness+1.1])
     rotate([90,45,90])
@@ -273,6 +314,7 @@ module stackable_printable_top_slants(){
 
 module stackable_groove_stopper(){
     //arduino groove stoppers
+    render()
     translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness-.1])
     rotate([0,90,0])
     cylinder(d=arduino_pcb_thickness*1, h=3,center=true);
@@ -288,6 +330,7 @@ module stackable_groove_stoppers(){
 
 module arduino_groove_stopper(){
     //arduino groove stoppers
+    render()
     translate([-chassis_l/2+wall_width/2,chassis_w/2-wall_width-.25,chassis_h-radius-arduino_pcb_thickness-14.9])
     rotate([0,90,0])
     cylinder(d=arduino_pcb_thickness*1, h=3,center=true);
@@ -383,7 +426,7 @@ module stepper_driver_holder(){
             cube([post_w,post_l,post_h], center = true);
             //groove
             translate([post_w/2,-groove_d,post_z])
-            cube([groove_d,groove_d,stepper_driver_h/2 + wall_width], center = true);    
+            cube([groove_d*1.25,groove_d,stepper_driver_h/2 + wall_width], center = true);    
         }
         //vertical brace to chassis
         color("red")
@@ -414,11 +457,16 @@ module stepper_driver_holders_set(){
 
 }
 module SL_axles(){
-
-        SL_axle(); 
-        mirror([0,1,0])
-        SL_axle(); 
-
+    difference(){
+        translate([0,0,-1])
+        union(){
+            SL_axle(); 
+            mirror([0,1,0])
+            SL_axle(); 
+        }
+        translate([0,0,-.5])
+        cube([chassis_l + stepper_motor_max_d, chassis_w + axle_h*2, 1], center=true);
+    }
 }
 
 module SL_axle(){
@@ -462,6 +510,50 @@ module SL_axle(){
 
 }
 
+module bearing_608_axles(){
+    bearing_608_axle(); 
+    mirror([0,1,0])
+    bearing_608_axle(); 
+}
+module bearing_608_axle(){
+    //put at bottom
+    //render()
+    bearing_608_axle_d = 8;//608 bearing has 8mm inner diameter
+    bearing_chassis_offset = 10;
+    bearing_608_axle_h = axle_h + bearing_chassis_offset;
+    translate([-chassis_l/2+axle_d/2,chassis_w/2+3,axle_d/2])//keep centered on original axle location, we want to add a bearing but not change distance between front and rear wheel...
+    rotate([-90,0,0])
+    union(){
+        difference(){
+
+            hollowCylinder(d=bearing_608_axle_d+1, h=bearing_608_axle_h, wallWidth=2.5, center=true);
+            //inner chamfer
+            color("red")
+            translate([0,0,3.5 + bearing_chassis_offset/4])
+            //careful adjusting these, it matches 608 bearing
+            hollowCylinder(d=bearing_608_axle_d+3, h=7.5, wallWidth=1.5, center=true);//7mm bearing width. d accounts for wall width to arrive at difference leaving an 8mmm shaft
+
+            //outer chamfer
+            translate([0,0,15])
+            torus(d1=bearing_608_axle_d-2, d2=bearing_608_axle_d+1, fill=false, center=true);
+            
+            
+            //translate([0,0,12])
+            //torus(d1=bearing_608_axle_d-5, d2=bearing_608_axle_d, fill=false, center=true);               
+            //inner rim of outside axle
+            //translate([0,0,3])
+            //hollowCylinder(d=axle_d, h=2, wallWidth=.4, center=true);
+            
+            //slot for flex
+            cube([2,bearing_608_axle_d+1,bearing_608_axle_h], center=true);
+        }  
+    }
+}
+
+
+module preview_bearings(){
+    hollowCylinder(d=bearing_608_axle_d, h=7, wallWidth=7, center=true);//608 bearing
+}
 
 //rear_triangle_cutout();
 module rear_triangle_cutout(){
