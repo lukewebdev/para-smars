@@ -123,7 +123,7 @@ module chassis_render(){
     }
     
     //preview only
-   // preview_parts();
+   preview_parts();
 }
 
 module wheels_render(){
@@ -145,9 +145,9 @@ module preview_parts(){
     color("blue")
     stepper_motors();
   //  color("green")
-  //  stepper_drivers(); 
+    stepper_drivers(); 
   //  color("blue")
-    //arduinos(); 
+    arduinos(); 
     
   //  preview_bearings();
     
@@ -252,6 +252,14 @@ module diffs(){
     rotate([0,0,90])  
     translate([0, -chassis_l/2+wall_width - module_difference_y/2,chassis_h/2 + 15 + wall_width*1.1])
     module_difference();
+    
+    mirror([1,0,0]){
+        //front top tool attachment
+        rotate([0,0,90])  
+        translate([0, -chassis_l/2+wall_width - module_difference_y/2,chassis_h/2 + 15 + wall_width*1.1])
+        module_difference();
+
+    }
     
     //cut off top
     translate([0,0,chassis_h-radius/2])
