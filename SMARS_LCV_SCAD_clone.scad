@@ -1,10 +1,8 @@
 //usage
 chassis_render();
-
+//StepMotor28BYJ();    
 //print test axles
 //bearing_608_axle_test();
-
-
 //DEVEL ONLY - COMMENT OUT FOR EXPORT
 $fa=1;
 $fs=1.5;
@@ -17,8 +15,18 @@ $fn=60;
 
 //end EXPORT RENDER
 
+//TEMPORARILY HIDE THINGS TO SPEED RENDER TIME DURING DEVELOPMENT
+show_batteries = false;
+show_rear_system = false;
+show_cable_management = false;
+show_preview = false;
+show_grooves = false;
 
-
+show_batteries = true;
+show_rear_system = true;
+show_cable_management = true;
+show_preview = false;
+show_grooves = true;
 
 fn=$fn;
 
@@ -30,7 +38,7 @@ use <use/openscad/pinConnector.scad>
 use <use/openscad/shapes.scad>
 use <use/StepMotor_28BYJ-48.scad>
 use <use/smars_18650_single_holder.scad>
-use <SMARS_608_Bearing_Wheel.scad>
+//use <SMARS_608_Bearing_Wheel.scad>
 
 
 
@@ -46,6 +54,8 @@ stepper_driver_front_offset = 2.2;//make room for tool modules
 stepper_motor_max_d = 35;
 stepper_motor_main_d = 28;
 stepper_hole_mount_d  = 4.5;
+stepper_z_nudge = -1;//move entire stepper accommodations up or down
+stepper_x_nudge = .5;
 //WHEEL CONF
 axle_d = 16;
 axle_h = 15;
@@ -114,20 +124,21 @@ if(use_608_bearing == true){
 module chassis_render(){
     union(){
         difference(){
-           //render()
+           render()
            chassis();
            diffs();
         }
-        chassis_interior();
+       chassis_interior();
         chassis_exterior();
     }
     
     //preview only
-   preview_parts();
+    if(show_preview){
+        preview_parts();
+    }
 }
 
 module wheels_render(){
-
     wheel_render();
     mirror([0,1,0])
     wheel_render();
@@ -142,11 +153,11 @@ module wheel_render(){
 
 module preview_parts(){
     //orig();
-    color("blue")
+    color("yellow")
     stepper_motors();
-  //  color("green")
+    color("green")
     stepper_drivers(); 
-  //  color("blue")
+    color("blue")
     arduinos(); 
     
   //  preview_bearings();
@@ -170,8 +181,10 @@ module arduinos(){
 }
 
 module stepper_motor(){
+
+    translate([stepper_x_nudge,0,stepper_z_nudge]) // nudge
     render()
-    translate([chassis_l/2 - 8.5,chassis_w/2 - 12.9,16])    
+    translate([chassis_l/2 - 8.5,chassis_w/2 - 12.3,16])    
     rotate([90,90,0])
     StepMotor28BYJ();    
 }
@@ -209,19 +222,20 @@ module chassis_exterior(){
 }
 
 module batteries(){
-    render()
-    union(){
-        translate([chassis_w/2+wall_width+battery_y_offset,0,battery_z])
-        color("yellow")
-        rotate([0,battery_tilt,0])
-        battery_holder_single();
+    if(show_batteries){
+        render()
+        union(){
+            translate([chassis_w/2+wall_width+battery_y_offset,0,battery_z])
+            color("yellow")
+            rotate([0,battery_tilt,0])
+            battery_holder_single();
 
-        mirror([1,0,0])
-        translate([chassis_w/2+wall_width+battery_y_offset,0,battery_z])
-        rotate([0,battery_tilt,0])
-        battery_holder_single();
+            mirror([1,0,0])
+            translate([chassis_w/2+wall_width+battery_y_offset,0,battery_z])
+            rotate([0,battery_tilt,0])
+            battery_holder_single();
+        }
     }
-    
 }
 
 module diffs(){
@@ -236,11 +250,12 @@ module diffs(){
     
     
     //big center cable hole
-    //translate([0,0,chassis_h/1.4])
-    translate([0,0,chassis_h/2 + 9.95])
-    rotate([90,90,0])
-    cylinder(h = chassis_w, d = side_hex_d, $fn = 6, center = true);
-    
+    if(show_cable_management){
+        //translate([0,0,chassis_h/1.4])
+        translate([0,0,chassis_h/2 + 10.5])
+        rotate([90,90,0])
+        cylinder(h = chassis_w, d = side_hex_d, $fn = 6, center = true);
+    }    
     //front and back hole
     /*
     translate([0,0,chassis_h/2.1])
@@ -271,6 +286,7 @@ module diffs(){
     rotate([0,0,90])  
     mirror([0,1,0])
     module_difference();
+    
     //top front cutout
     translate([-chassis_l/2 + wall_width/2,0,14/2 + 56])
         cube([wall_width, chassis_w-wall_width*2, 56], center = true);
@@ -280,26 +296,31 @@ module diffs(){
     //cube([wall_width*5, 50.5, 16], center = true);
 
     //rear_triangle_cutout();
+    translate([stepper_x_nudge,0,stepper_z_nudge]) // nudge    
     render()
     stepper_holes();
     render()
     stepper_motors();
+    
+
 
     //arduino groove
-    translate([0,0,chassis_h-radius-arduino_pcb_thickness-15])
-    color("yellow")
-    cube([arduino_length,arduino_width,arduino_pcb_thickness],center=true); 
-    
+    if(show_grooves){
+        translate([0,0,chassis_h-radius-arduino_pcb_thickness-15])
+        color("yellow")
+        cube([arduino_length,arduino_width,arduino_pcb_thickness],center=true); 
+    }
     //arduino top slant printable groove
     arduino_printable_top_slants();
     arduino_groove_stoppers();
 
 
-    
-    //top stackable module groove
-    color("yellow")
-    translate([-.5,0,chassis_h-radius-arduino_pcb_thickness])
-    cube([chassis_l-wall_width*2+1,arduino_width,arduino_pcb_thickness],center=true);    //length minus due to back wall
+    if(show_grooves){
+        //top stackable module groove
+        color("yellow")
+        translate([-.5,0,chassis_h-radius-arduino_pcb_thickness])
+        cube([chassis_l-wall_width*2+1,arduino_width,arduino_pcb_thickness],center=true);    //length minus due to back wall
+    }
     stackable_printable_top_slants();
     stackable_groove_stoppers();    
 
@@ -321,9 +342,11 @@ module arduino_printable_top_slant(){
 }
 
 module arduino_printable_top_slants(){
-    arduino_printable_top_slant();
-    mirror([0,1,0])
-    arduino_printable_top_slant();
+    if(show_grooves){
+        arduino_printable_top_slant();
+        mirror([0,1,0])
+        arduino_printable_top_slant();
+    }
 }
 
 module stackable_printable_top_slant(){
@@ -336,13 +359,15 @@ module stackable_printable_top_slant(){
 }
 //stackable_printable_top_slants();
 module stackable_printable_top_slants(){
-    stackable_printable_top_slant();
-    mirror([0,1,0])
-    stackable_printable_top_slant();
-   /* mirror([1,1,0])//rear top slant
-    scale([.78,1,1])    
-    translate([0,-7,0])
-    stackable_printable_top_slant(); */   
+    if(show_grooves){
+        stackable_printable_top_slant();
+        mirror([0,1,0])
+        stackable_printable_top_slant();
+       /* mirror([1,1,0])//rear top slant
+        scale([.78,1,1])    
+        translate([0,-7,0])
+        stackable_printable_top_slant(); */   
+    }
 }
 
 module stackable_groove_stopper(){
@@ -355,9 +380,11 @@ module stackable_groove_stopper(){
 
 
 module stackable_groove_stoppers(){
-    stackable_groove_stopper();
-    mirror([0,1,0])
-    stackable_groove_stopper();
+    if(show_grooves){
+        stackable_groove_stopper();
+        mirror([0,1,0])
+        stackable_groove_stopper();
+    }
 }
 
 
@@ -371,16 +398,19 @@ module arduino_groove_stopper(){
 
 
 module arduino_groove_stoppers(){
-    arduino_groove_stopper();
-    mirror([0,1,0])
-    arduino_groove_stopper();
+    if(show_grooves){
+        arduino_groove_stopper();
+        mirror([0,1,0])
+        arduino_groove_stopper();
+    }
 }
 
 //module_difference();
 module module_difference(){//what to subtract (if in a wall and don't need sides)
     //mount hole
-    translate([0,2.5 + stepper_hole_mount_d,module_difference_z/2 - stepper_hole_mount_d-1.15])
+    translate([0,1.8 + stepper_hole_mount_d,module_difference_z/2 - stepper_hole_mount_d-2])
     rotate([0,90,0])
+    color("red")
     cylinder(h=chassis_w+1, d = 4.5, center=true);
    
     
@@ -393,26 +423,32 @@ module top_stepper_housing_cutout_block(){
 }
                 
 module rear_system(){
-    //render()
-    translate([chassis_l/2,0,stepper_motor_max_d/2])
-    rotate([90,0,0])
-    difference(){
-        rotate([0,0,0])
-        //main cube
-        roundedcube(size = [stepper_motor_max_d, stepper_motor_max_d, chassis_w], radius = 6, apply_to = "all", center=true);
-        
-        //main hollow
-        cube([stepper_motor_max_d-2.2*2, stepper_motor_max_d-wall_width*2, chassis_w-wall_width*2], center=true);
-        
-        //cylinder(h=chassis_w-wall_width*2, d=stepper_motor_max_d-wall_width*2, center = true);    
-        translate([0,stepper_motor_max_d/2+5,0])
-        top_stepper_housing_cutout_block();
-        
+    if(show_rear_system){
+        //render()
+        difference(){
+            translate([chassis_l/2,0,stepper_motor_max_d/2])
+            rotate([90,0,0])
+            difference(){
+                rotate([0,0,0])
+                //main cube
+                roundedcube(size = [stepper_motor_max_d, stepper_motor_max_d, chassis_w], radius = 6, apply_to = "all", center=true);
+                
+                //main hollow
+                cube([stepper_motor_max_d-2.2*2, stepper_motor_max_d-wall_width*2, chassis_w-wall_width*2], center=true);
+                
+                //cylinder(h=chassis_w-wall_width*2, d=stepper_motor_max_d-wall_width*2, center = true);    
+                translate([0,stepper_motor_max_d/2+5,0])
+                top_stepper_housing_cutout_block();
+                
 
-        translate([16,-stepper_motor_max_d/2-chassis_l/2+1.2+48,0])
-        rotate([0,90,90])
-        color("red")
-        module_difference();                
+                translate([16,-stepper_motor_max_d/2-chassis_l/2+1.2+48,0])
+                rotate([0,90,90])
+                color("red")
+                module_difference();  
+
+            }
+
+        }        
     }
 }
 
@@ -485,7 +521,8 @@ module stepper_driver_holders_set(){
     }
 
 }
-module SL_axles(){
+
+module SL_axles_set(){
     difference(){
         translate([0,0,-1])
         union(){
@@ -494,6 +531,12 @@ module SL_axles(){
             SL_axle(); 
         }
     }
+}
+
+module SL_axles(){
+    SL_axles_set();
+    mirror([1,0,0])
+    SL_axles_set();
 }
 
 module SL_axle(){
@@ -651,12 +694,11 @@ module stepper_holes(){
             translate([0, 0, 7])    
             rotate([0,90,0])
             cylinder(h=chassis_w+1, d = 9.5, center=true);    
-                       
-            
-            //scoop out for shape of stepper on bottom floor
-            translate([0,-.25,17.8])
-            rotate([0,90,0])
-            cylinder(h=chassis_w-wall_width*2, d= stepper_motor_max_d, center = true);     
+                        
+           //scoop out for shape of stepper on bottom floor
+           translate([0,.25,15.2])
+           rotate([0,90,0])
+           cylinder(h=chassis_w-wall_width*2, d= stepper_motor_main_d*1.02, center = true, $fn=45);     
 
             //clean up under top tool module attachment
             translate([0,-.25,19.8])
