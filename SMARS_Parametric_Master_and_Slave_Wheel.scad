@@ -16,14 +16,14 @@ SL_axle_diff(axle_d = 16);*/
       //wheel_w needs to be minus rims
   
  //SAVE THIS - THIS IS A WORkING LARGER SLAVE WHEEL  smooth
-//wheel(axle_d = 15, wheel_w=20.6, wheel_d = 32, pyramid_h = 2, rim_w=.2, rim_d = 35);
+//wheel(axle_d = 15, wheel_w=20.6, wheel_d = 32, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =false);
 
 
 //slave wheel geared, larger than master to take up slack in track
-//wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8);
+wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8);
 
 //sample master
-wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8, slave=false);
+//wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8, slave=false);
 
 //translate([0,0,20])
 //wheel_slave_original();
@@ -98,6 +98,10 @@ module wheel(axle_d = 15, wheel_w=20.6, wheel_d = 32, pyramid_h = 2, rim_w=.2, r
                //wheel chamfer
                 translate([0,0,-wheel_w/2])
                 cylinder(d=wheel_d*1.25, d2=5, h=wheel_w*1.4, center=true);                
+
+                translate([0,0,-wheel_w/2 * rim_w*2 + 15.5])
+                mirror([0,0,1])        
+                cylinder(d=wheel_d*1.2, d2=1, h=wheel_w*.7, center=true);                   
                             
             }else{
                for (i = [1 : 6]){
@@ -130,6 +134,12 @@ module wheel(axle_d = 15, wheel_w=20.6, wheel_d = 32, pyramid_h = 2, rim_w=.2, r
 
                /* translate([0,0,-wheel_w/2 + rim_w*3])
                 cylinder(d=wheel_d*1.5, d2=1, h=wheel_w*.3, center=true);*/
+                
+
+                translate([0,0,-wheel_w/2 * rim_w*2 + 15.5])
+                mirror([0,0,1])        
+                cylinder(d=wheel_d*1.2, d2=1, h=wheel_w*.7, center=true);                   
+                
             }
 
             
@@ -162,12 +172,14 @@ module wheel(axle_d = 15, wheel_w=20.6, wheel_d = 32, pyramid_h = 2, rim_w=.2, r
                 //stepper shaft slot
                 color("red")
                 translate([0,0, +20.6/2 +.2])
-                cube([5.5,3.5,15],center=true); 
+                cube([5.5,3.5,29],center=true); 
                 //wheel chamfer
                // translate([0,0,-wheel_w/2 * rim_w*2 + 3])
                 //cylinder(d=wheel_d*1.2, d2=1, h=wheel_w*.7, center=true);                
             }
         }
+        //wheel chamfer to account for first layer print being wider
+
         
 
     }

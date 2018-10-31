@@ -11,7 +11,7 @@ $fs=1.5;
 
 
 //EXPORT RENDER
-$fn=60;
+$fn=25;
 
 //end EXPORT RENDER
 
@@ -19,14 +19,18 @@ $fn=60;
 show_batteries = false;
 show_rear_system = false;
 show_cable_management = false;
-show_preview = false;
 show_grooves = false;
+show_chassis = false;
+show_preview = false;
+
 
 show_batteries = true;
 show_rear_system = true;
 show_cable_management = true;
-show_preview = false;
 show_grooves = true;
+show_chassis = true;
+show_preview = false;
+
 
 fn=$fn;
 
@@ -122,20 +126,23 @@ if(use_608_bearing == true){
     //wheels_render();
 }
 module chassis_render(){
-    union(){
-        difference(){
-           render()
-           chassis();
-           diffs();
+
+        union(){
+
+                difference(){
+                   render()
+                   chassis();
+                   diffs();
+                }
+               chassis_interior();
+                chassis_exterior();
+                }
+        
+        //preview only
+        if(show_preview){
+            preview_parts();
         }
-       chassis_interior();
-        chassis_exterior();
-    }
-    
-    //preview only
-    if(show_preview){
-        preview_parts();
-    }
+        
 }
 
 module wheels_render(){
@@ -204,7 +211,9 @@ module chassis(){
     //SL_axles();        
     color("gray")
     translate([0,0,chassis_h/2])
+if(show_chassis==true){
     roundedcube(size = [chassis_l, chassis_w, chassis_h], radius = 6, apply_to = "all", center=true);
+}
     rear_system();
     
     //only to see, otherwise comment out
@@ -541,18 +550,15 @@ module SL_axles(){
 
 module SL_axle(){
         //put at bottom
-        //render()
         translate([-chassis_l/2+axle_d/2,chassis_w/2+3,axle_d/2])
         rotate([-90,0,0])
+    difference(){
         union(){
             difference(){
 
                 hollowCylinder(d=axle_d, h=axle_h, wallWidth=3, center=true);
                 //inner chamfer
                 torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
-                //outer chamfer
-                //translate([0,0,9.5])
-                //torus(d1=axle_d-2, d2=axle_d+1, fill=false, center=true);
                 
                 translate([0,0,12])
                 torus(d1=axle_d-5, d2=axle_d, fill=false, center=true);               
@@ -576,7 +582,13 @@ module SL_axle(){
                 cube([3,axle_d,axle_h], center=true);
             }
         }
+        
+        //top of axle flat
+        translate([0,-axle_d+1.5,0])
+        cube([axle_d, axle_d, axle_d], center=true);
+    }
 }
+            
 
 module bearing_608_axles(){
     color("yellow")
