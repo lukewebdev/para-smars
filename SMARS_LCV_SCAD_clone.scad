@@ -11,25 +11,18 @@ $fs=1.5;
 
 
 //EXPORT RENDER
-$fn=25;
+$fn=15;
 
 //end EXPORT RENDER
 
 //TEMPORARILY HIDE THINGS TO SPEED RENDER TIME DURING DEVELOPMENT
-show_batteries = false;
-show_rear_system = false;
-show_cable_management = false;
-show_grooves = false;
-show_chassis = false;
-show_preview = false;
-
 
 show_batteries = true;
 show_rear_system = true;
 show_cable_management = true;
 show_grooves = true;
 show_chassis = true;
-show_preview = false;
+show_preview = true;
 
 
 fn=$fn;

@@ -20,13 +20,12 @@ SL_axle_diff(axle_d = 16);*/
 
 
 //slave wheel geared, larger than master to take up slack in track
-wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8);
+//wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8);
 
 //sample master
-//wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8, slave=false);
+wheel(axle_d = 15, wheel_w=20.6, wheel_d = 31, pyramid_h = 3.5, pyramid_d=8, pyramid_d2=3.5, rim_w=.2, rim_d = 35, do_pyramids =true, fn = 8, slave=false);
 
-//translate([0,0,20])
-//wheel_slave_original();
+wheel_spinner_drill_attachment();
 module wheel(axle_d = 15, wheel_w=20.6, wheel_d = 32, pyramid_h = 2, rim_w=.2, rim_d = 35, fn = $fn, do_pyramids = false, slave=true, SL_axle_h=6){
     
     //main wheel
@@ -247,4 +246,26 @@ module SL_axle_orig(axle_d = 16){//keep in sync with main chassis axle code!
                 }
             }
         }
+}
+
+
+module wheel_spinner_drill_attachment(axle_d = 15, wheel_w=20.6, wheel_d = 32, pyramid_h = 2, rim_w=.2, rim_d = 35, fn = $fn, do_pyramids = false, slave=true, SL_axle_h=6){
+    translate([0,0,0])   
+    rotate([0,180,0]) 
+    difference(){
+        union(){
+            for (i = [1 : 6]){
+                color("yellow")
+                rotate([60*i,90,0])
+                translate([0,0,wheel_w/2 -5])    
+                // rotate([0,45,0])
+                translate([0,0,4])
+                cube([11, (2*(wheel_d/2)*2.75)/30, 8], center=true);
+            }
+            translate([0,0,3])
+            cylinder(h=5, d=25,center=true);
+        }
+        
+        cylinder(h=30, d=2.25, center=true);
+    }
 }
