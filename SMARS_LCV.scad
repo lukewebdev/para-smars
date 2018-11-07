@@ -1,7 +1,8 @@
+//EDIT YOUR PARAMETERS IN THE configuration_parameters.scad file
+
 //usage
 chassis_render();
-//StepMotor28BYJ();    
-//print test axles
+//print test axles for bearing experimentaiton
 //bearing_608_axle_test();
 use <use/openscad/hollowCylinder.scad>
 use <use/openscad/torus.scad>
