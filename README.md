@@ -27,5 +27,10 @@ Currently there is some clutter we need to clean up and some unused files.
 
 A few videos of these robots in action:
 https://www.youtube.com/watch?v=e3OiXQOx9ag
+
 https://www.youtube.com/watch?v=ZqQueUTJkCA
+
 https://www.youtube.com/watch?v=jl2UJ-XNMSg
+
+Thingiverse page for this variant:
+https://www.thingiverse.com/thing:3202688
