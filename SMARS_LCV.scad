@@ -11,18 +11,35 @@ use <use/openscad/pinConnector.scad>
 use <use/openscad/shapes.scad>
 use <use/StepMotor_28BYJ-48.scad>
 use <use/smars_18650_single_holder.scad>
-
+use <use/Nut_Job.scad>
 
 //include configuration
 include <configuration_parameters.scad>
 
 
-if(use_608_bearing == true){
-    //generate non-standard bearing wheels and bearing retainers
-    //wheels_render();
-}
-module chassis_render(){
+//tensioner();
 
+module tensioner(){
+    
+   /* translate([0,chassis_w/2 + 22/2 - 2,chassis_h/2-22/4])
+    rotate([0,0,90])
+    union(){
+        translate([0,0,18])
+        rotate([90,90,0])
+        hollowCylinder(d=20.8, wallWidth=1.4, h=12);
+        
+        rotate([90,90,90]){
+            difference(){
+                cylinder(d=8, h=3, center=true);
+                cylinder(d=2.4, h = 4, center=true);
+            }
+        }
+    }*/
+}
+
+
+module chassis_render(){
+        render()
         union(){
 
                 difference(){
@@ -231,7 +248,7 @@ module diffs(){
 
     
     //cut off everything below z=0
-    translate([0,0,-5])
+    translate([0,0,-4.6 ])
     cube([chassis_l + stepper_motor_max_d, chassis_w + axle_h*2, 10], center=true);
 }
 

@@ -1,6 +1,6 @@
 $fa=1;
 $fs=1.5;
-$fn=15;//dev 15, to print at least 25
+$fn = 30;//dev 15, to print at least 25
 fn=$fn;
 
 show_batteries = true;

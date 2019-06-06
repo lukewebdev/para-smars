@@ -1,13 +1,13 @@
 $fn=30;
 
-    scale([1,1.02,1])
-    track_lcv();
-//pins();
+    //scale([1,1.02,1]);
+    //track_lcv();
+    pins();
 module track_lcv(){
     render()
     difference(){
         translate([0,0,-2])
-        import("import/mechanical_track.stl");
+        import("import/mechanical_track-orig-import-dont-print-use-modified.stl");
 
 
         color("yellow")
@@ -25,19 +25,3 @@ module track_lcv(){
 }
 
 
-
-module pins(){
-
-    for (i = [0 : 6]){
-        translate([0,i*3,(1.5+(.1*i))/2])
-        rotate([0,90,0])
-
-        render()
-        cylinder(h=17, d=1.5+(.1*i), center=true);
-    }
-
-
-  
-
-
-}
