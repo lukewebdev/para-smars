@@ -24,3 +24,8 @@ To try out defaults, simply open SMARS_LCV.scad  in openscad and hit F5.
 
 
 Currently there is some clutter we need to clean up and some unused files.
+
+A few videos of these robots in action:
+https://www.youtube.com/watch?v=e3OiXQOx9ag
+https://www.youtube.com/watch?v=ZqQueUTJkCA
+https://www.youtube.com/watch?v=jl2UJ-XNMSg
