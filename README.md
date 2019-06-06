@@ -21,3 +21,6 @@ building on itself or improving overall.
 Ideally, we could improve this so that one may simply choose their battery selection, and width/height etc and the robot model will generate itself.
 
 To try out defaults, simply open SMARS_LCV.scad  in openscad and hit F5.
+
+
+Currently there is some clutter we need to clean up and some unused files.
