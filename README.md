@@ -20,4 +20,30 @@ building on itself or improving overall.
 
 Ideally, we could improve this so that one may simply choose their battery selection, and width/height etc and the robot model will generate itself.
 
-To try out defaults, simply open SMARS_LCV.scad  in openscad and hit F5.
+To try out defaults, simply open
+configuration_parameters.scad and change $fn=15 or something low to render it faster while developing.
+Set iteme like batteries and preview to false:
+show_batteries = true;
+show_rear_system = true;
+show_cable_management = true;
+show_grooves = true;
+show_chassis = true;
+show_preview = false;
+use_608_bearing = false; // should always be false...bearing variant is not working yet.
+
+Then save and open
+SMARS_LCV.scad in openscad and hit F5.  
+
+
+
+Currently there is some clutter we need to clean up and some unused files.
+
+A few videos of these robots in action:
+https://www.youtube.com/watch?v=e3OiXQOx9ag
+
+https://www.youtube.com/watch?v=ZqQueUTJkCA
+
+https://www.youtube.com/watch?v=jl2UJ-XNMSg
+
+Thingiverse page for this variant:
+https://www.thingiverse.com/thing:3202688
