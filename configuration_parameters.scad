@@ -1,11 +1,11 @@
 $fa=1;
 $fs=1.5;
-$fn = 30;//dev 15, to print at least 25
+$fn = 15;//dev 15, to print at least 25
 fn=$fn;
 
-show_batteries = true;
+show_batteries = false;
 show_rear_system = true;
-show_cable_management = true;
+show_cable_management = false;
 show_grooves = true;
 show_chassis = true;
 show_preview = false;
