@@ -1,7 +1,7 @@
 # para-smars
 Parametric library for generating SMARS robots. 
 
-All credit or original SMARS concept etc goes to creator of SMARS and the original robot - https://www.thingiverse.com/thing:2662828
+All credit for the original SMARS concept etc goes to creator of SMARS and the original robot - https://www.thingiverse.com/thing:2662828
 
 This is a parametric effort, primarily aimed at the stepper version of SMARS, 
 but the idea is to make a single code repository capable of generating all desirable variants of SMARS.
